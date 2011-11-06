@@ -294,11 +294,11 @@ int format_volume(const char* volume) {
     Volume* v = volume_for_path(volume);
     if (v == NULL) {
         // no /sdcard? let's assume /data/media
-        if (strstr(volume, "/sdcard") == volume && is_data_media()) {
+        if (strstr(volume, "/emmc") == volume && is_data_media()) {
             return format_unknown_device(NULL, volume, NULL);
         }
         // silent failure for sd-ext
-        if (strcmp(volume, "/sd-ext") == 0)
+        if (strcmp(volume, "/sdcard") == 0)
             return -1;
         LOGE("unknown volume \"%s\"\n", volume);
         return -1;

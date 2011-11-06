@@ -684,7 +684,9 @@ wipe_data(int confirm) {
     if (has_datadata()) {
         erase_volume("/datadata");
     }
-    erase_volume("/sd-ext");
+    // for what reason should we wipe external card?
+    //erase_volume("/sdcard");
+    erase_volume("/emmc/.android_secure");
     erase_volume("/sdcard/.android_secure");
     ui_print("Data wipe complete.\n");
 }

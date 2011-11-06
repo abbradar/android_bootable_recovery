@@ -362,7 +362,7 @@ void show_nandroid_restore_menu(const char* path)
 void show_mount_usb_storage_menu()
 {
     int fd;
-    Volume *vol = volume_for_path("/sdcard");
+    Volume *vol = volume_for_path("/emmc");
     if ((fd = open(BOARD_UMS_LUNFILE, O_WRONLY)) < 0) {
         LOGE("Unable to open ums lunfile (%s)", strerror(errno));
         return -1;
@@ -435,11 +435,11 @@ int format_device(const char *device, const char *path, const char *fs_type) {
     Volume* v = volume_for_path(path);
     if (v == NULL) {
         // no /sdcard? let's assume /data/media
-        if (strstr(path, "/sdcard") == path && is_data_media()) {
+        if (strstr(path, "/emmc") == path && is_data_media()) {
             return format_unknown_device(NULL, path, NULL);
         }
         // silent failure for sd-ext
-        if (strcmp(path, "/sd-ext") == 0)
+        if (strcmp(path, "/sdcard") == 0)
             return -1;
         LOGE("unknown volume \"%s\"\n", path);
         return -1;
@@ -503,13 +503,13 @@ int format_unknown_device(const char *device, const char* path, const char *fs_t
         return erase_raw_partition(fs_type, device);
 
     // if this is SDEXT:, don't worry about it if it does not exist.
-    if (0 == strcmp(path, "/sd-ext"))
+    if (0 == strcmp(path, "/sdcard"))
     {
         struct stat st;
-        Volume *vol = volume_for_path("/sd-ext");
+        Volume *vol = volume_for_path("/sdcard");
         if (vol == NULL || 0 != stat(vol->device, &st))
         {
-            ui_print("No app2sd partition found. Skipping format of /sd-ext.\n");
+            ui_print("No app2sd partition found. Skipping format of /sdcard.\n");
             return 0;
         }
     }
@@ -746,7 +746,7 @@ void show_nandroid_advanced_restore_menu(const char* path)
                             "Restore system",
                             "Restore data",
                             "Restore cache",
-                            "Restore sd-ext",
+                            "Restore emmc",
                             "Restore wimax",
                             NULL
     };
@@ -778,7 +778,7 @@ void show_nandroid_advanced_restore_menu(const char* path)
                 nandroid_restore(file, 0, 0, 0, 1, 0, 0);
             break;
         case 4:
-            if (confirm_selection(confirm_restore, "Yes - Restore sd-ext"))
+            if (confirm_selection(confirm_restore, "Yes - Restore emmc"))
                 nandroid_restore(file, 0, 0, 0, 0, 1, 0);
             break;
         case 5:
@@ -908,12 +908,12 @@ void show_advanced_menu()
             {
                 if (0 != ensure_path_mounted("/data"))
                     break;
-                ensure_path_mounted("/sd-ext");
+                ensure_path_mounted("/emmc");
                 ensure_path_mounted("/cache");
                 if (confirm_selection( "Confirm wipe?", "Yes - Wipe Dalvik Cache")) {
                     __system("rm -r /data/dalvik-cache");
                     __system("rm -r /cache/dalvik-cache");
-                    __system("rm -r /sd-ext/dalvik-cache");
+                    __system("rm -r /emmc/dalvik-cache");
                     ui_print("Dalvik Cache wiped.\n");
                 }
                 ensure_path_unmounted("/data");
